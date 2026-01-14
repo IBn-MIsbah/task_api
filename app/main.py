@@ -1,0 +1,19 @@
+from fastapi import FastAPI
+
+from app.api.v1.api import api_router
+
+# =========== main app instance =============
+app = FastAPI(description="Task api")
+
+
+# ======= Route registery =======
+app.include_router(api_router)
+
+
+# ========== Health status check ========
+@app.get("/health")
+async def health():
+    return {
+        "success": True,
+        "message": "Health check passed",
+    }

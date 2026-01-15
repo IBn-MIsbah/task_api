@@ -12,7 +12,7 @@ app.include_router(api_router)
 
 # ========== Health status check ========
 @app.get("/health")
-async def health():
+async def health_check():
     return {
         "success": True,
         "message": "Health check passed",

@@ -7,7 +7,7 @@ from app.core.config import settings
 from app.core.db import get_db
 from app.models.user import User
 
-reusable_oauth2 = OAuth2PasswordBearer(tokenUrl="api/v1/auth/login/access-token")
+reusable_oauth2 = OAuth2PasswordBearer(tokenUrl="api/v1/auth/login")
 
 
 async def get_current_user(

@@ -1,9 +1,13 @@
 import uuid
 from datetime import datetime
+from typing import TYPE_CHECKING, List
 from uuid import UUID
 
 from sqlalchemy import Column, DateTime, func
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, Relationship, SQLModel
+
+if TYPE_CHECKING:
+    from app.models.task import Task
 
 
 class User(SQLModel, table=True):
@@ -14,6 +18,7 @@ class User(SQLModel, table=True):
     is_active: bool = Field(default=True)
     hashed_password: str = Field()
 
+    tasks: List["Task"] = Relationship(back_populates="owner")
     created_at: datetime = Field(
         sa_column=Column(DateTime(timezone=True), server_default=func.now())
     )

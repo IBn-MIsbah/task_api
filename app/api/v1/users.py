@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -16,7 +18,7 @@ async def check_route_status():
 
 
 @router.get("/", status_code=200, response_model=list[UserRead])
-async def read_users(session: AsyncSession = Depends(get_db)):
+async def list_users(session: AsyncSession = Depends(get_db)):
     try:
         result = await session.execute(select(User))
         users = result.scalars().all()
@@ -27,6 +29,30 @@ async def read_users(session: AsyncSession = Depends(get_db)):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error fetching users: {str(e)}",
+        )
+
+
+@router.get("/{user_id}", status_code=200, response_model=UserRead)
+async def get_user(user_id: UUID, session: AsyncSession = Depends(get_db)):
+    try:
+        statement = select(User).where(User.id == user_id)
+        result = await session.execute(statement=statement)
+        user = result.scalar_one_or_none()
+
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+            )
+
+        return user
+    except HTTPException:
+        raise
+    except Exception as e:
+
+        await session.rollback()  # rollback is usually only needed for POST/PUT/DELETE
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An internal server error occurred. {str(e)}",
         )
 
 

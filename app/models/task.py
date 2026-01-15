@@ -15,7 +15,7 @@ class Task(SQLModel, table=True):
     description: str = Field()
     status: str = Field(default="pending")
     priority: str = Field(default="medium")
-    due_date: Optional[datetime] = Field(sa_column=Column(timezone=True))
+    due_date: Optional[datetime] = Field(sa_column=Column(DateTime(timezone=True)))
     user_id: UUID = Field(foreign_key="user.id")
     owner: "User" = Relationship(back_populates="tasks")
 

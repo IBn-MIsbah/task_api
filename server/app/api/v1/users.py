@@ -99,3 +99,23 @@ async def update_user(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error updating user data: {str(e)}",
         )
+
+@router.delete('/{user_id}', status_code=200)
+async def delete_user(user_id:UUID, session:AsyncSession=Depends(get_db), current_user:User = Depends(get_current_user)):
+    if user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN
+            ,detail="Unauthorized to remove this record"
+        )
+    try:
+        user = await session.get(User, user_id)
+        await session.delete(user)
+        await session.commit()
+        return None
+    except Exception:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error deleting user data: {str(e)}"
+        )

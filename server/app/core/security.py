@@ -52,13 +52,13 @@ def set_auth_cookeis(access_token: str, refresh_token: str, response: Response):
     cookie_params = {
         "httponly": True,
         "secure": settings.COOKIE_SECURE,
-        "samesite": "lax"
+        "samesite": "lax",
     }
     if access_token:
         response.set_cookie(
             key="access_token",
             value=access_token,
-            max_age= int(settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60),
+            max_age=int(settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60),
             **cookie_params
         )
 
@@ -66,7 +66,7 @@ def set_auth_cookeis(access_token: str, refresh_token: str, response: Response):
         response.set_cookie(
             key="refresh_token",
             value=refresh_token,
-            max_age= int(settings.REFRESH_TOKEN_EXPIRE_MINUTES * 60),
+            max_age=int(settings.REFRESH_TOKEN_EXPIRE_MINUTES * 60),
             **cookie_params
         )
 

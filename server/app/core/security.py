@@ -30,7 +30,7 @@ def create_access_token(subject: Union[str, Any]) -> str:
     )
     to_encode = {"exp": expire, "sub": str(subject)}
     encoded_jwt = jwt.encode(
-        to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM
+        to_encode, settings.ACCESS_TOKEN_SECRET_KEY, algorithm=settings.ALGORITHM
     )
 
     return encoded_jwt
@@ -42,31 +42,32 @@ def create_refresh_token(subject: Union[str, Any]) -> str:
     )
     to_encode = {"exp": expire, "sub": str(subject)}
     encoded_jwt = jwt.encode(
-        to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM
+        to_encode, settings.REFRESH_TOKEN_SECRET_KEY, algorithm=settings.ALGORITHM
     )
 
     return encoded_jwt
 
 
 def set_auth_cookeis(access_token: str, refresh_token: str, response: Response):
+    cookie_params = {
+        "httponly": True,
+        "secure": settings.COOKIE_SECURE,
+        "samesite": "lax"
+    }
     if access_token:
         response.set_cookie(
             key="access_token",
             value=access_token,
-            httponly=True,
-            secure=False,
-            samesite="lax",
-            max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+            max_age= int(settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60),
+            **cookie_params
         )
 
     if refresh_token:
         response.set_cookie(
             key="refresh_token",
             value=refresh_token,
-            httponly=True,
-            secure=False,
-            samesite="lax",
-            max_age=settings.REFRESH_TOKEN_EXPIRE_MINUTES * 60,
+            max_age= int(settings.REFRESH_TOKEN_EXPIRE_MINUTES * 60),
+            **cookie_params
         )
 
     return {"message": "Cookie set successfully."}

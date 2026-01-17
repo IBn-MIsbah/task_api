@@ -60,24 +60,3 @@ async def get_user(user_id: UUID, session: AsyncSession = Depends(get_db)):
         )
 
 
-@router.post("/", status_code=201, response_model=UserRead)
-async def create_user(user_data: UserCreate, session: AsyncSession = Depends(get_db)):
-    statement = select(User).where(User.email == user_data.email)
-    result = await session.execute(statement)
-    existing_user = result.scalar_one_or_none()
-
-    if existing_user:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email is already registered",
-        )
-
-    try:
-        new_user = await cr(user_in=user_data, session=session)
-        return new_user
-    except Exception as e:
-        await session.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error creating user: {str(e)}",
-        )

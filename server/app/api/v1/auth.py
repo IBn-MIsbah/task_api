@@ -35,7 +35,8 @@ async def regist(user_data: UserCreate, session: AsyncSession = Depends(get_db))
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error creating user: {str(e)}",
         )
-    
+
+
 @router.post("/login", status_code=200)
 async def login(
     response: Response,

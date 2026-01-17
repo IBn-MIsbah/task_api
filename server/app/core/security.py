@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from typing import Any, Union
 
+from fastapi import Response
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 
@@ -33,3 +34,39 @@ def create_access_token(subject: Union[str, Any]) -> str:
     )
 
     return encoded_jwt
+
+
+def create_refresh_token(subject: Union[str, Any]) -> str:
+    expire = datetime.now(timezone.utc) + timedelta(
+        minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES
+    )
+    to_encode = {"exp": expire, "sub": str(subject)}
+    encoded_jwt = jwt.encode(
+        to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM
+    )
+
+    return encoded_jwt
+
+
+def set_auth_cookeis(access_token: str, refresh_token: str, response: Response):
+    if access_token:
+        response.set_cookie(
+            key="access_token",
+            value=access_token,
+            httponly=True,
+            secure=False,
+            samesite="lax",
+            max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        )
+
+    if refresh_token:
+        response.set_cookie(
+            key="refresh_token",
+            value=refresh_token,
+            httponly=True,
+            secure=False,
+            samesite="lax",
+            max_age=settings.REFRESH_TOKEN_EXPIRE_MINUTES * 60,
+        )
+
+    return {"message": "Cookie set successfully."}

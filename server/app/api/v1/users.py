@@ -4,10 +4,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import require_role
+from app.api.deps import get_current_user, require_role
 from app.core.db import get_db
 from app.models.user import Role, User
-from app.schemas.user import UserCreate, UserRead
+from app.schemas.user import UserRead, UserUpdate
 from app.services.user_service import create_user as cr
 
 router = APIRouter()
@@ -60,3 +60,42 @@ async def get_user(user_id: UUID, session: AsyncSession = Depends(get_db)):
         )
 
 
+@router.patch("/{user_id}", status_code=204)
+async def update_user(
+    user_id: UUID,
+    user_data: UserUpdate,
+    session: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    if user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Unauthorized to update this record",
+        )
+    try:
+        user = await session.get(User, user_id)
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+            )
+        if not user.is_active:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="User account has been blocked!",
+            )
+
+        update_data = user_data.model_dump(exclude_unset=True)
+        for key, value in update_data.items():
+            setattr(user, key, value)
+
+        session.add(user)
+        await session.commit()
+        await session.refresh(user)
+        return None
+    except Exception:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error updating user data: {str(e)}",
+        )

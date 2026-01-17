@@ -21,7 +21,9 @@ async def get_current_user(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized"
         )
     try:
-        payload = jwt.decode(token, settings.ACCESS_TOKEN_SECRET_KEY, algorithms=settings.ALGORITHM)
+        payload = jwt.decode(
+            token, settings.ACCESS_TOKEN_SECRET_KEY, algorithms=settings.ALGORITHM
+        )
         user_id: str = payload.get("sub")
 
         if user_id is None:
@@ -51,7 +53,9 @@ def require_role(*roles: Role):
 async def decode_refresh_token(refresh_token: str):
     try:
         payload = jwt.decode(
-            refresh_token, settings.REFRESH_TOKEN_SECRET_KEY, algorithms=settings.ALGORITHM
+            refresh_token,
+            settings.REFRESH_TOKEN_SECRET_KEY,
+            algorithms=settings.ALGORITHM,
         )
         user_id: str = payload.get("sub")
 

@@ -15,7 +15,7 @@ router = APIRouter()
 
 
 @router.post("/", status_code=201, response_model=UserRead)
-async def register(user_data: UserCreate, session: AsyncSession = Depends(get_db)):
+async def regist(user_data: UserCreate, session: AsyncSession = Depends(get_db)):
     statement = select(User).where(User.email == user_data.email)
     result = await session.execute(statement)
     existing_user = result.scalar_one_or_none()
@@ -27,7 +27,7 @@ async def register(user_data: UserCreate, session: AsyncSession = Depends(get_db
         )
 
     try:
-        new_user = await cr(user_in=user_data, session=session)
+        new_user = await crt(user_in=user_data, session=session)
         return new_user
     except Exception as e:
         await session.rollback()

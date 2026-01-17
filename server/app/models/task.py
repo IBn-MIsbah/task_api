@@ -19,6 +19,7 @@ class TaskStatus(str, Enum):
     completed = "completed"  # Task finished successfully
     cancelled = "cancelled"  # Task no longer needs to be done
 
+
 class TaskPriority(str, Enum):
     low = "low"
     medium = "medium"

@@ -4,8 +4,9 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.api.deps import require_role
 from app.core.db import get_db
-from app.models.user import User
+from app.models.user import Role, User
 from app.schemas.user import UserCreate, UserRead
 from app.services.user_service import create_user as cr
 
@@ -18,7 +19,10 @@ async def check_route_status():
 
 
 @router.get("/", status_code=200, response_model=list[UserRead])
-async def list_users(session: AsyncSession = Depends(get_db)):
+async def list_users(
+    session: AsyncSession = Depends(get_db),
+    user_rol: Role = Depends(require_role(Role.admin)),
+):
     try:
         result = await session.execute(select(User))
         users = result.scalars().all()

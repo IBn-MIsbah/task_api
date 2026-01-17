@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 10080
 
     @property
-    def COOKIE_SECURE(self)-> bool:
+    def COOKIE_SECURE(self) -> bool:
         self.ENVIRONMENT == "production"
 
     model_config = SettingsConfigDict(env_file=".env")

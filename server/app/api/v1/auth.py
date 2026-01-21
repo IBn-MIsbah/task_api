@@ -10,6 +10,7 @@ from app.core.security import create_refresh_token as crt
 from app.core.security import set_auth_cookeis, verify_password
 from app.models.user import User
 from app.schemas.user import UserCreate, UserLogin, UserRead
+from app.services.user_service import create_user
 
 router = APIRouter()
 
@@ -27,7 +28,7 @@ async def regist(user_data: UserCreate, session: AsyncSession = Depends(get_db))
         )
 
     try:
-        new_user = await crt(user_in=user_data, session=session)
+        new_user = await create_user(user_in=user_data, session=session)
         return new_user
     except Exception as e:
         await session.rollback()

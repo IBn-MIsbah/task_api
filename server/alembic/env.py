@@ -41,10 +41,10 @@ def do_run_migrations(connection):
 # 3. Changed to an async function
 async def run_migrations_online() -> None:
     configuration = config.get_section(config.config_ini_section)
-    configuration["sqlalchemy.url"] = settings.DATABASE_URL
+    configuration["sqlalchemy.url"] = settings.DATABASE_URL # type: ignore
 
     connectable = async_engine_from_config(
-        configuration,
+        configuration, # type: ignore
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
